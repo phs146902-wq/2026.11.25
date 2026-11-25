@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>장난감 스토어</title>
+  <link href="https://googleapis.com" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; }
+    body { color: #000000; background-color: #ffffff; line-height: 1.4; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: 'Noto Sans KR', sans-serif; cursor: pointer; border: none; background: none; }
+    ul, li { list-style: none; }
+
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* 페이지 전환 */
+    .view-page { display: none; min-height: 100vh; }
+    body:not(:has(.view-page:target)) #home,
+    #home:target,
+    #menu:target,
+    #toy:target {
+      display: block;
+    }
+
+    /* 공통 헤더 */
+    .header { display: flex; justify-content: space-between; align-items: center; height: 70px; }
+    .logo { font-size: 20px; font-weight: 700; }
+    .icon-btn { display: flex; align-items: center; justify-content: center; padding: 8px; }
+
+    /* 공통 섹션 */
+    section { padding: 40px 0; }
+    .section-title { font-size: 30px; font-weight: 500; color: #000000; margin-bottom: 20px; }
+    .sub-page-title { font-size: 28px; font-weight: 700; line-height: 1.3; padding: 30px 0 24px; }
+
+    /* 메인 배너 (sub/img/toy 1.jpg) */
+    .hero { width: 100%; height: 460px; background-color: #f4f4f4; overflow: hidden; }
+    .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .section_1 { display: flex; flex-direction: column; gap: 16px; }
+    .btn-order-full { display: flex; align-items: center; justify-content: center; width: 100%; height: 80px; background-color: #222222; color: #ffffff; font-size: 20px; font-weight: 500; border-radius: 8px; }
+    .btn-half-wrap { display: flex; gap: 16px; }
+    .btn-order-half { display: flex; align-items: center; justify-content: center; flex: 1; height: 80px; background-color: #f4f4f4; color: #000000; font-size: 20px; font-weight: 500; border-radius: 8px; border: 1px solid #e0e0e0; }
+
+    .hashtag-wrap { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tag-btn { height: 35px; padding: 0 18px; border-radius: 20px; font-size: 14px; font-weight: 500; border: 1px solid #cccccc; color: #333333; background-color: #ffffff; }
+    .tag-btn.active { background-color: #000000; color: #ffffff; border-color: #000000; }
+    .card-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .menu-card { display: block; }
+
+    .img-box { width: 100%; aspect-ratio: 1 / 1; background-color: #f4f4f4; border-radius: 8px; overflow: hidden; }
+    .img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .section_4 .section-title { margin-bottom: 8px; }
+    .sec4-desc { font-size: 14px; font-weight: 500; color: #838383; margin-bottom: 24px; }
+    .sec4-tabs { display: flex; gap: 20px; border-bottom: 1px solid #eeeeee; padding-bottom: 12px; margin-bottom: 24px; }
+    .tab-item { font-size: 14px; font-weight: 500; color: #838383; }
+    .tab-item.active { font-weight: 700; color: #000000; }
+    .news-list { display: flex; flex-direction: column; gap: 20px; }
+    .news-item { display: flex; gap: 16px; align-items: center; }
+    .news-thumb { width: 100px; height: 100px; flex-shrink: 0; }
+    .news-info { display: flex; flex-direction: column; gap: 4px; }
+    .news-sub { font-size: 14px; font-weight: 500; color: #555555; }
+    .news-title { font-size: 16px; font-weight: 500; color: #000000; }
+    .news-date { font-size: 14px; font-weight: 300; color: #555555; }
+
+    /* 메뉴바 페이지 */
+    .menu-header { display: flex; justify-content: space-between; align-items: center; height: 70px; border-bottom: 1px solid #eeeeee; }
+    .menu-header span { font-size: 18px; font-weight: 700; color: #000000; }
+    .menu-list { margin-top: 10px; }
+    .menu-list li { border-bottom: 1px solid #eeeeee; }
+    .menu-list li a,
+    .menu-list li .menu-text-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 4px;
+      font-size: 18px;
+      font-weight: 500;
+      color: #111111;
+    }
+    .menu-list li a:hover { color: #ff5500; }
+
+    /* 장난감 리스트 페이지 */
+    .toy-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding-bottom: 60px; }
+    .toy-img-box { width: 100%; aspect-ratio: 1 / 1; background-color: #f4f4f4; border-radius: 12px; overflow: hidden; }
+    .toy-img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- 1. 메인 페이지 -->
+  <div id="home" class="view-page">
+    <div class="container">
+      <header class="header">
+        <div class="logo"><a href="#home">TOY STORE</a></div>
+        <a href="#menu" class="icon-btn" aria-label="메뉴 열기">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </a>
+      </header>
+    </div>
+
+    <section class="hero">
+      <img src="./img/toy 1.jpg" alt="">
+    </section>
+
+    <main class="container">
+      <section class="section_1">
+        <a href="#toy" class="btn-order-full">장난감 주문하기</a>
+        <div class="btn-half-wrap">
+          <button type="button" class="btn-order-half">소개</button>
+          <button type="button" class="btn-order-half">커뮤니티</button>
+        </div>
+      </section>
+
+      <!-- 추천 장난감 (toy 1 ~ toy 3) -->
+      <section class="section_2">
+        <h2 class="section-title">추천 장난감</h2>
+        <div class="hashtag-wrap">
+          <button type="button" class="tag-btn active">#인기장난감</button>
+          <button type="button" class="tag-btn">#원목블록</button>
+          <button type="button" class="tag-btn">#한정판</button>
+        </div>
+        <div class="card-grid-3">
+          <a href="#toy" class="menu-card"><div class="img-box"><img src="./img/toy 1.jpg" alt=""></div></a>
+          <a href="#toy" class="menu-card"><div class="img-box"><img src="./img/toy 2.jpg" alt=""></div></a>
+          <a href="#toy" class="menu-card"><div class="img-box"><img src="./img/toy 3.jpg" alt=""></div></a>
+        </div>
+      </section>
+
+      <!-- 전체 장난감 (toy 4 ~ toy 6) -->
+      <section class="section_3">
+        <h2 class="section-title">전체 장난감</h2>
+        <div class="hashtag-wrap">
+          <button type="button" class="tag-btn active">퍼즐</button>
+          <button type="button" class="tag-btn">쌓기놀이</button>
+          <button type="button" class="tag-btn">오브제</button>
+        </div>
+        <div class="card-grid-3">
+          <a href="#toy" class="menu-card"><div class="img-box"><img src="./img/toy 4.jpg" alt=""></div></a>
+          <a href="#toy" class="menu-card"><div class="img-box"><img src="./img/toy 5.jpg" alt=""></div></a>
+          <a href="#toy" class="menu-card"><div class="img-box"><img src="./img/toy 6.jpg" alt=""></div></a>
+        </div>
+      </section>
+
+      <section class="section_4">
+        <h2 class="section-title">이벤트 및 소식</h2>
+        <p class="sec4-desc">새로운 장난감 출시 소식과 다양한 이벤트를 만나보세요.</p>
+        <div class="sec4-tabs">
+          <button type="button" class="tab-item active">전체</button>
+          <button type="button" class="tab-item">이벤트</button>
+          <button type="button" class="tab-item">공지사항</button>
+        </div>
+        <div class="news-list">
+          <article class="news-item">
+            <div class="img-box news-thumb"><img src="./img/toy 8.jpg" alt=""></div>
+            <div class="news-info">
+              <span class="news-sub">신상품 안내</span>
+              <h3 class="news-title">신규 원목 장난감 컬렉션 출시</h3>
+              <span class="news-date">2026.11.25</span>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 2. 메뉴바 페이지 -->
+  <div id="menu" class="view-page">
+    <div class="container">
+      <header class="menu-header">
+        <span>Menu</span>
+        <a href="#home" class="icon-btn" aria-label="닫기" style="font-size: 24px; font-weight: 400;">✕</a>
+      </header>
+      <ul class="menu-list">
+        <li><a href="#toy"><span>장난감 리스트</span><span>&rsaquo;</span></a></li>
+        <li><div class="menu-text-item"><span>소개</span></div></li>
+        <li><div class="menu-text-item"><span>커뮤니티</span></div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 3. 장난감 리스트 페이지 (toy 1.jpg ~ toy 10.jpg 전체) -->
+  <div id="toy" class="view-page">
+    <div class="container">
+      <header class="header">
+        <div class="logo"><a href="#home">TOY STORE</a></div>
+        <a href="#menu" class="icon-btn" aria-label="메뉴 열기">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </a>
+      </header>
+      <h1 class="sub-page-title">장난감 리스트</h1>
+      <div class="toy-grid">
+        <div class="toy-img-box"><img src="./img/toy 1.jpg" alt=""></div>
+        <div class="toy-img-box"><img src="./img/toy 2.jpg" alt=""></div>
+        <div class="toy-img-box"><img src="./img/toy 3.jpg" alt=""></div>
+        <div class="toy-img-box"><img src="./img/toy 4.jpg" alt=""></div>
+        <div class="toy-img-box"><img src="./img/toy 5.jpg" alt=""></div>
+        <div class="toy-img-box"><img src="./img/toy 6.jpg" alt=""></div>
+        <div class="toy-img-box"><img src="./img/toy 7.jpg" alt=""></div>
+        <div class="toy-img-box"><img src="./img/toy 8.jpg" alt=""></div>
+        <div class="toy-img-box"><img src="./img/toy 9.jpg" alt=""></div>
+
+
+
+
+
+
+
